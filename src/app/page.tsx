@@ -24,6 +24,15 @@ const TIME_MULTIPLIERS: Record<TimeUnit, number> = {
   hours: 3600,
 };
 
+const determineTimeUnit = (seconds: number): [number, TimeUnit] => {
+  if (seconds % 3600 === 0) {
+    return [seconds / 3600, 'hours'];
+  } else if (seconds % 60 === 0) {
+    return [seconds / 60, 'minutes'];
+  }
+  return [seconds, 'seconds'];
+};
+
 export default function VineBoomer() {
   const [isEnabled, setIsEnabled] = useState(false)
   const [minTime, setMinTime] = useState(1)
@@ -37,20 +46,26 @@ export default function VineBoomer() {
 
   const updateStatus = async () => {
     try {
-      const status = await invoke<Status>('get_status')
-      setIsEnabled(status.enabled)
-      setMinTime(Math.max(1, Math.round(status.min_time / TIME_MULTIPLIERS[minTimeUnit])))
-      setMaxTime(Math.max(1, Math.round(status.max_time / TIME_MULTIPLIERS[maxTimeUnit])))
+      const status = await invoke<Status>('get_status');
+      setIsEnabled(status.enabled);
       
-      const autostartEnabled = await invoke<boolean>('is_autostart_enabled')
-      console.log(autostartEnabled)
-      setIsAutostartEnabled(autostartEnabled)
+      const [minValue, minUnit] = determineTimeUnit(status.min_time);
+      setMinTime(minValue);
+      setMinTimeUnit(minUnit);
+      
+      const [maxValue, maxUnit] = determineTimeUnit(status.max_time);
+      setMaxTime(maxValue);
+      setMaxTimeUnit(maxUnit);
+      
+      const autostartEnabled = await invoke<boolean>('is_autostart_enabled');
+      console.log(autostartEnabled);
+      setIsAutostartEnabled(autostartEnabled);
     } catch (error) {
-      console.error('Failed to get status:', error)
+      console.error('Failed to get status:', error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     updateStatus()

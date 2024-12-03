@@ -1,4 +1,4 @@
-use crate::{MAX_INTERVAL, MIN_INTERVAL, VINE_BOOM_ENABLED};
+use crate::{storage, VINE_BOOM_ENABLED};
 use std::sync::atomic::Ordering;
 use tauri::AppHandle;
 
@@ -10,11 +10,11 @@ pub struct Status {
 }
 
 #[tauri::command]
-pub fn get_status() -> Status {
+pub fn get_status(app: AppHandle) -> Status {
     Status {
         enabled: VINE_BOOM_ENABLED.load(Ordering::Relaxed),
-        min_time: MIN_INTERVAL.load(Ordering::Relaxed),
-        max_time: MAX_INTERVAL.load(Ordering::Relaxed),
+        min_time: storage::get_min_interval(&app),
+        max_time: storage::get_max_interval(&app),
     }
 }
 
@@ -27,14 +27,11 @@ pub fn toggle_status() -> bool {
 }
 
 #[tauri::command]
-pub fn set_interval(min: u64, max: u64) -> Result<(), String> {
+pub fn set_interval(app: AppHandle, min: u64, max: u64) -> Result<(), String> {
     if min > max {
         return Err("Minimum time cannot be greater than maximum time".to_string());
     }
-
-    MIN_INTERVAL.store(min, Ordering::Relaxed);
-    MAX_INTERVAL.store(max, Ordering::Relaxed);
-    Ok(())
+    storage::set_intervals(&app, min, max)
 }
 
 #[tauri::command]

@@ -1,21 +1,21 @@
 use rand::Rng;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::time::Duration;
+use std::{
+    sync::atomic::{AtomicBool, Ordering},
+    time::Duration
+};
 use tauri::{
+    AppHandle,
+    Manager,
     menu::{Menu, MenuItem},
     path::BaseDirectory,
-    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager,
-    AppHandle,
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
 };
 use tauri_plugin_autostart::ManagerExt;
-
 mod command;
 mod sound;
+mod storage;
 
 static VINE_BOOM_ENABLED: AtomicBool = AtomicBool::new(false);
-static MIN_INTERVAL: AtomicU64 = AtomicU64::new(1);
-static MAX_INTERVAL: AtomicU64 = AtomicU64::new(30);
 
 fn show_main_window(app_handle: &AppHandle) {
     if let Some(window) = app_handle.get_webview_window("main") {
@@ -30,13 +30,15 @@ fn show_main_window(app_handle: &AppHandle) {
 }
 
 pub fn run() {
-    let mut builder = tauri::Builder::default();
-    
+    let mut builder = tauri::Builder::default().plugin(tauri_plugin_store::Builder::new().build());
+
     #[cfg(desktop)]
     {
-        builder = builder.plugin(tauri_plugin_single_instance::init(move |app_handle, _argv, _cwd| {
-            show_main_window(&app_handle);
-        }));
+        builder = builder.plugin(tauri_plugin_single_instance::init(
+            move |app_handle, _argv, _cwd| {
+                show_main_window(&app_handle);
+            },
+        ));
 
         builder = builder.plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
@@ -55,20 +57,21 @@ pub fn run() {
         ])
         .setup(|app| {
             create_tray_icon(app)?;
+            storage::initialize_store(&app.handle())?;
             let window = app.get_webview_window("main").unwrap();
             let window_clone = window.clone();
-            
+
+
             window.on_window_event(move |event| {
                 if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                     api.prevent_close();
                     window_clone.hide().unwrap();
                 }
             });
-            
-            // Enable autostart by default
+
             let autostart_manager = app.autolaunch();
             let _ = autostart_manager.enable();
-            
+
             Ok(())
         })
         .run(tauri::generate_context!())
@@ -87,8 +90,8 @@ pub fn create_tray_icon(app: &tauri::App) -> Result<(), tauri::Error> {
         let mut rng = rand::thread_rng();
         loop {
             if VINE_BOOM_ENABLED.load(Ordering::Relaxed) {
-                let min = MIN_INTERVAL.load(Ordering::Relaxed);
-                let max = MAX_INTERVAL.load(Ordering::Relaxed);
+                let min = storage::get_min_interval(&app_handle);
+                let max = storage::get_max_interval(&app_handle);
                 let delay = rng.gen_range(min..=max);
 
                 std::thread::sleep(Duration::from_secs(delay));

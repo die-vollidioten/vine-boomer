@@ -4,8 +4,8 @@
     "pub_date": "2020-06-22T19:25:57Z",
     "platforms": {
       "windows-x86_64": {
-        "signature": "Content of app-setup.nsis.sig or app.msi.sig, depending on the chosen format",
-        "url": "https://github.com/username/reponame/releases/download/v1.0.0/app-x64-setup.nsis.zip"
+        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTT1ppRC9IQms4NU5VZTluR1FHbXNmV0RoeEkvak0zbmlxU1hvUVltZERUdEM4V0RMcmY1UmdmMjhZVW9XS2NHWDNpeHhVVC9JZUxDNTJnVXorWmZSanFFdC8ycFRXVVE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzMzMjQ5MzM1CWZpbGU6dmluZS1ib29tZXJfMC4xLjJfeDY0LXNldHVwLmV4ZQp6TFVXWWExcjIrUkNNd0lpOTVQRG9oZ2NId09kOFJvcUYxRDBabStHVUhIclRyVkEySTlOWU1BWmw4a2g0TVBoNE1rQXgwMnY4SHZ4QmZMRGhINmxEUT09Cg==",
+        "url": "https://github.com/die-vollidioten/vine-boomer/releases/download/Beta-0.1.3/vine-boomer_0.1.3_x64-setup.exe"
       }
     }
 }

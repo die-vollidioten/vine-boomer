@@ -49,6 +49,9 @@ pub fn run() {
             command::get_status,
             command::toggle_status,
             command::set_interval,
+            command::is_autostart_enabled,
+            command::enable_autostart,
+            command::disable_autostart,
         ])
         .setup(|app| {
             create_tray_icon(app)?;
@@ -150,5 +153,36 @@ pub fn create_tray_icon(app: &tauri::App) -> Result<(), tauri::Error> {
         })
         .build(app)?;
 
+    Ok(())
+}
+
+pub fn is_autostart_enabled(app_handle: &AppHandle) -> bool {
+    #[cfg(desktop)]
+    {
+        app_handle.autolaunch().is_enabled().unwrap_or(false)
+    }
+    #[cfg(not(desktop))]
+    false
+}
+
+pub fn enable_autostart(app_handle: &AppHandle) -> Result<(), String> {
+    #[cfg(desktop)]
+    {
+        app_handle
+            .autolaunch()
+            .enable()
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+pub fn disable_autostart(app_handle: &AppHandle) -> Result<(), String> {
+    #[cfg(desktop)]
+    {
+        app_handle
+            .autolaunch()
+            .disable()
+            .map_err(|e| e.to_string())?;
+    }
     Ok(())
 }

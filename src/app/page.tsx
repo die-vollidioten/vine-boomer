@@ -30,6 +30,7 @@ export default function VineBoomer() {
   const [maxTime, setMaxTime] = useState(30)
   const [minTimeUnit, setMinTimeUnit] = useState<TimeUnit>('seconds')
   const [maxTimeUnit, setMaxTimeUnit] = useState<TimeUnit>('seconds')
+  
   const [isUpdating, setIsUpdating] = useState(false)
   const [isAutostartEnabled, setIsAutostartEnabled] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -42,6 +43,7 @@ export default function VineBoomer() {
       setMaxTime(Math.max(1, Math.round(status.max_time / TIME_MULTIPLIERS[maxTimeUnit])))
       
       const autostartEnabled = await invoke<boolean>('is_autostart_enabled')
+      console.log(autostartEnabled)
       setIsAutostartEnabled(autostartEnabled)
     } catch (error) {
       console.error('Failed to get status:', error)

@@ -1,5 +1,6 @@
 use crate::{MAX_INTERVAL, MIN_INTERVAL, VINE_BOOM_ENABLED};
 use std::sync::atomic::Ordering;
+use tauri::AppHandle;
 
 #[derive(serde::Serialize)]
 pub struct Status {
@@ -34,4 +35,19 @@ pub fn set_interval(min: u64, max: u64) -> Result<(), String> {
     MIN_INTERVAL.store(min, Ordering::Relaxed);
     MAX_INTERVAL.store(max, Ordering::Relaxed);
     Ok(())
+}
+
+#[tauri::command]
+pub fn is_autostart_enabled(app_handle: AppHandle) -> bool {
+    crate::is_autostart_enabled(&app_handle)
+}
+
+#[tauri::command]
+pub fn enable_autostart(app_handle: AppHandle) -> Result<(), String> {
+    crate::enable_autostart(&app_handle)
+}
+
+#[tauri::command]
+pub fn disable_autostart(app_handle: AppHandle) -> Result<(), String> {
+    crate::disable_autostart(&app_handle)
 }

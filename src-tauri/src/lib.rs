@@ -13,6 +13,8 @@ use tauri_plugin_autostart::ManagerExt;
 mod command;
 mod sound;
 mod storage;
+use tauri_plugin_updater::UpdaterExt;
+
 
 static VINE_BOOM_ENABLED: AtomicBool = AtomicBool::new(false);
 
@@ -57,6 +59,10 @@ pub fn run() {
             command::disable_autostart,
         ])
         .setup(|app| {
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                update(handle).await.unwrap();
+              });
             create_tray_icon(app)?;
             storage::initialize_store(&app.handle())?;
             let window = app.get_webview_window("main").unwrap();
@@ -77,6 +83,30 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
+    if let Some(update) = app.updater()?.check().await? {
+      let mut downloaded = 0;
+  
+      // alternatively we could also call update.download() and update.install() separately
+      update
+        .download_and_install(
+          |chunk_length, content_length| {
+            downloaded += chunk_length;
+            println!("downloaded {downloaded} from {content_length:?}");
+          },
+          || {
+            println!("download finished");
+          },
+        )
+        .await?;
+  
+      println!("update installed");
+      app.restart();
+    }
+  
+    Ok(())
+  }
 
 pub fn create_tray_icon(app: &tauri::App) -> Result<(), tauri::Error> {
     let enable_i = MenuItem::with_id(app, "enable", "Enable Vine Boom", true, None::<&str>)?;

@@ -1,6 +1,6 @@
 use rand::Rng;
 use std::{
-    sync::atomic::{AtomicBool, Ordering},
+    sync::atomic::{AtomicBool, AtomicU64, Ordering},
     time::Duration,
 };
 use tauri::{
@@ -17,6 +17,7 @@ use tauri_plugin_updater::UpdaterExt;
 
 
 static VINE_BOOM_ENABLED: AtomicBool = AtomicBool::new(false);
+static GENERATION: AtomicU64 = AtomicU64::new(0);
 
 fn show_main_window(app_handle: &AppHandle) {
     if let Some(window) = app_handle.get_webview_window("main") {
@@ -88,7 +89,6 @@ async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
     if let Some(update) = app.updater()?.check().await? {
       let mut downloaded = 0;
   
-      // alternatively we could also call update.download() and update.install() separately
       update
         .download_and_install(
           |chunk_length, content_length| {
@@ -118,13 +118,24 @@ pub fn create_tray_icon(app: &tauri::App) -> Result<(), tauri::Error> {
     let app_handle = app.handle().clone();
     std::thread::spawn(move || {
         let mut rng = rand::thread_rng();
+        let mut current_generation = GENERATION.load(Ordering::Relaxed);
+        
         loop {
             if VINE_BOOM_ENABLED.load(Ordering::Relaxed) {
                 let min = storage::get_min_interval(&app_handle);
                 let max = storage::get_max_interval(&app_handle);
                 let delay = rng.gen_range(min..=max);
+                
+                let start_time = std::time::Instant::now();
+                while start_time.elapsed().as_secs() < delay {
+                    if current_generation != GENERATION.load(Ordering::Relaxed) 
+                        || !VINE_BOOM_ENABLED.load(Ordering::Relaxed) {
+                        break;
+                    }
+                    std::thread::sleep(Duration::from_millis(100));
+                }
 
-                std::thread::sleep(Duration::from_secs(delay));
+                current_generation = GENERATION.load(Ordering::Relaxed);
 
                 if VINE_BOOM_ENABLED.load(Ordering::Relaxed) {
                     if let Ok(path) = app_handle
@@ -136,6 +147,7 @@ pub fn create_tray_icon(app: &tauri::App) -> Result<(), tauri::Error> {
                 }
             } else {
                 std::thread::sleep(Duration::from_secs(1));
+                current_generation = GENERATION.load(Ordering::Relaxed);
             }
         }
     });

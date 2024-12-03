@@ -1,4 +1,4 @@
-use crate::{storage, VINE_BOOM_ENABLED};
+use crate::{storage, VINE_BOOM_ENABLED, GENERATION};
 use std::sync::atomic::Ordering;
 use tauri::AppHandle;
 
@@ -31,6 +31,7 @@ pub fn set_interval(app: AppHandle, min: u64, max: u64) -> Result<(), String> {
     if min > max {
         return Err("Minimum time cannot be greater than maximum time".to_string());
     }
+    GENERATION.fetch_add(1, Ordering::Relaxed);
     storage::set_intervals(&app, min, max)
 }
 

@@ -14,6 +14,7 @@ interface Status {
   enabled: boolean;
   min_time: number;
   max_time: number;
+  start_enabled: boolean;
 }
 
 type TimeUnit = 'seconds' | 'minutes' | 'hours';
@@ -43,6 +44,12 @@ export default function VineBoomer() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isAutostartEnabled, setIsAutostartEnabled] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [status, setStatus] = useState<Status>({
+    enabled: false,
+    min_time: 0,
+    max_time: 0,
+    start_enabled: false,
+  });
 
   const updateStatus = async () => {
     try {
@@ -60,6 +67,7 @@ export default function VineBoomer() {
       const autostartEnabled = await invoke<boolean>('is_autostart_enabled');
       console.log(autostartEnabled);
       setIsAutostartEnabled(autostartEnabled);
+      setStatus(status);
     } catch (error) {
       console.error('Failed to get status:', error);
     } finally {
@@ -135,6 +143,17 @@ export default function VineBoomer() {
     } else {
       setMaxTime(newValue)
       setMaxTimeUnit(value)
+    }
+  }
+
+  const handleStartEnabledToggle = async () => {
+    try {
+      await invoke('set_start_enabled', { enabled: !status.start_enabled });
+      updateStatus(); // Refresh the status
+      toast.success("Start enabled setting updated");
+    } catch (error) {
+      toast.error("Failed to update start enabled setting");
+      console.error('Failed to set start enabled:', error);
     }
   }
 
@@ -268,6 +287,15 @@ export default function VineBoomer() {
               className="form-checkbox h-5 w-5 text-purple-600"
             />
             <label className="text-sm text-zinc-400">Start on system startup</label>
+          </div>
+          <div className="flex items-center space-x-2 mt-4">
+            <input
+              type="checkbox"
+              checked={status.start_enabled}
+              onChange={handleStartEnabledToggle}
+              className="form-checkbox h-5 w-5 text-purple-600"
+            />
+            <label className="text-sm text-zinc-400">Start enabled on launch</label>
           </div>
         </CardContent>
       </Card>

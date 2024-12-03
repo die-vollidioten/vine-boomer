@@ -58,6 +58,7 @@ pub fn run() {
             command::is_autostart_enabled,
             command::enable_autostart,
             command::disable_autostart,
+            command::set_start_enabled,
         ])
         .setup(|app| {
             let handle = app.handle().clone();
@@ -66,6 +67,11 @@ pub fn run() {
               });
             create_tray_icon(app)?;
             storage::initialize_store(&app.handle())?;
+            
+            // Set initial state based on start_enabled setting
+            let start_enabled = storage::get_start_enabled(&app.handle());
+            VINE_BOOM_ENABLED.store(start_enabled, Ordering::Relaxed);
+            
             let window = app.get_webview_window("main").unwrap();
             let window_clone = window.clone();
 

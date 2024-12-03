@@ -7,6 +7,7 @@ pub struct Status {
     enabled: bool,
     min_time: u64,
     max_time: u64,
+    start_enabled: bool,
 }
 
 #[tauri::command]
@@ -15,11 +16,12 @@ pub fn get_status(app: AppHandle) -> Status {
         enabled: VINE_BOOM_ENABLED.load(Ordering::Relaxed),
         min_time: storage::get_min_interval(&app),
         max_time: storage::get_max_interval(&app),
+        start_enabled: storage::get_start_enabled(&app),
     }
 }
 
 #[tauri::command]
-pub fn toggle_status() -> bool {
+pub fn toggle_status(app: AppHandle) -> bool {
     let current = VINE_BOOM_ENABLED.load(Ordering::Relaxed);
     let new_status = !current;
     VINE_BOOM_ENABLED.store(new_status, Ordering::Relaxed);
@@ -48,4 +50,9 @@ pub fn enable_autostart(app_handle: AppHandle) -> Result<(), String> {
 #[tauri::command]
 pub fn disable_autostart(app_handle: AppHandle) -> Result<(), String> {
     crate::disable_autostart(&app_handle)
+}
+
+#[tauri::command]
+pub fn set_start_enabled(app: AppHandle, enabled: bool) -> Result<(), String> {
+    storage::set_start_enabled(&app, enabled)
 }

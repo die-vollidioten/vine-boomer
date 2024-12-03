@@ -9,6 +9,12 @@
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build"
   },
+  "plugins": {
+      "updater": {
+      "endpoints": ["RAW GITHUB URL OF THE latest.json FILE OR RAW URL OF THE GITHUB GIST"],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU0M0MxOTFDRkYyMDY2OEUKUldTT1ppRC9IQms4NUdzTUtYeExvL0ZSTUNYT2U3dWZjZ2lDWmdQRllJRWFsUzRHaUU5dTlBUk0K"
+    }
+  },
   "app": {
     "windows": [
       {
@@ -25,6 +31,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "resources": ["assets/*"],
     "targets": "all",
     "icon": [

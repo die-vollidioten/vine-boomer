@@ -1,14 +1,13 @@
 use rand::Rng;
 use std::{
     sync::atomic::{AtomicBool, Ordering},
-    time::Duration
+    time::Duration,
 };
 use tauri::{
-    AppHandle,
-    Manager,
     menu::{Menu, MenuItem},
     path::BaseDirectory,
-    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    AppHandle, Manager,
 };
 use tauri_plugin_autostart::ManagerExt;
 mod command;
@@ -30,7 +29,9 @@ fn show_main_window(app_handle: &AppHandle) {
 }
 
 pub fn run() {
-    let mut builder = tauri::Builder::default().plugin(tauri_plugin_store::Builder::new().build());
+    let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_store::Builder::new().build());
 
     #[cfg(desktop)]
     {
@@ -60,7 +61,6 @@ pub fn run() {
             storage::initialize_store(&app.handle())?;
             let window = app.get_webview_window("main").unwrap();
             let window_clone = window.clone();
-
 
             window.on_window_event(move |event| {
                 if let tauri::WindowEvent::CloseRequested { api, .. } = event {

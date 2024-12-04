@@ -1,6 +1,7 @@
 use crate::{storage, VINE_BOOM_ENABLED, GENERATION};
 use std::sync::atomic::Ordering;
 use tauri::AppHandle;
+use crate::statistics::{BoomStats, get_stats};
 
 #[derive(serde::Serialize)]
 pub struct Status {
@@ -21,7 +22,7 @@ pub fn get_status(app: AppHandle) -> Status {
 }
 
 #[tauri::command]
-pub fn toggle_status(app: AppHandle) -> bool {
+pub fn toggle_status(_app: AppHandle) -> bool {
     let current = VINE_BOOM_ENABLED.load(Ordering::Relaxed);
     let new_status = !current;
     VINE_BOOM_ENABLED.store(new_status, Ordering::Relaxed);
@@ -55,4 +56,9 @@ pub fn disable_autostart(app_handle: AppHandle) -> Result<(), String> {
 #[tauri::command]
 pub fn set_start_enabled(app: AppHandle, enabled: bool) -> Result<(), String> {
     storage::set_start_enabled(&app, enabled)
+}
+
+#[tauri::command]
+pub fn get_boom_stats(app: AppHandle) -> BoomStats {
+    get_stats(&app)
 }

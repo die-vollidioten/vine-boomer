@@ -11,10 +11,12 @@ use tauri::{
 };
 use tauri_plugin_autostart::ManagerExt;
 mod command;
+mod platform_storage;
 mod sound;
 mod storage;
 use tauri_plugin_updater::UpdaterExt;
 mod server;
+mod statistics;
 
 
 static VINE_BOOM_ENABLED: AtomicBool = AtomicBool::new(false);
@@ -60,6 +62,7 @@ pub fn run() {
             command::enable_autostart,
             command::disable_autostart,
             command::set_start_enabled,
+            command::get_boom_stats,
         ])
         .setup(|app| {
             let handle = app.handle().clone();
@@ -134,14 +137,16 @@ pub fn create_tray_icon(app: &tauri::App) -> Result<(), tauri::Error> {
     let menu = Menu::with_items(app, &[&enable_i, &disable_i, &settings_i, &quit_i])?;
 
     let app_handle = app.handle().clone();
+    let app_handle_for_thread = app_handle.clone();
+
     std::thread::spawn(move || {
         let mut rng = rand::thread_rng();
         let mut current_generation = GENERATION.load(Ordering::Relaxed);
         
         loop {
             if VINE_BOOM_ENABLED.load(Ordering::Relaxed) {
-                let min = storage::get_min_interval(&app_handle);
-                let max = storage::get_max_interval(&app_handle);
+                let min = storage::get_min_interval(&app_handle_for_thread);
+                let max = storage::get_max_interval(&app_handle_for_thread);
                 let delay = rng.gen_range(min..=max);
                 
                 let start_time = std::time::Instant::now();
@@ -156,11 +161,16 @@ pub fn create_tray_icon(app: &tauri::App) -> Result<(), tauri::Error> {
                 current_generation = GENERATION.load(Ordering::Relaxed);
 
                 if VINE_BOOM_ENABLED.load(Ordering::Relaxed) {
-                    if let Ok(path) = app_handle
+                    if let Ok(path) = app_handle_for_thread
                         .path()
                         .resolve("assets/vine.mp3", BaseDirectory::Resource)
                     {
-                        sound::play_sound_async(path.to_string_lossy().into_owned());
+                        sound::play_sound_async_debounced(
+                            path.to_string_lossy().into_owned(),
+                            100,
+                            true,
+                            &app_handle_for_thread,
+                        );
                     }
                 }
             } else {
@@ -188,7 +198,7 @@ pub fn create_tray_icon(app: &tauri::App) -> Result<(), tauri::Error> {
             }
             _ => {}
         })
-        .on_tray_icon_event(|tray, event| match event {
+        .on_tray_icon_event(move |tray, event| match event {
             TrayIconEvent::Click {
                 button: MouseButton::Left,
                 button_state: MouseButtonState::Up,
@@ -210,6 +220,8 @@ pub fn create_tray_icon(app: &tauri::App) -> Result<(), tauri::Error> {
                         .to_string_lossy()
                         .into_owned(),
                     100,
+                    true,
+                    &app_handle,
                 );
             }
             _ => {}

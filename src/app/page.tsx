@@ -9,6 +9,7 @@ import { HelpCircle, Loader2 } from "lucide-react"
 import { invoke } from '@tauri-apps/api/core'
 import { useState, useEffect } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
+import { StatsDialog } from "@/components/StatsDialog"
 
 interface Status {
   enabled: boolean;
@@ -187,26 +188,29 @@ export default function VineBoomer() {
               <Loader2 className="h-4 w-4 animate-spin absolute -right-6 top-1/2 -translate-y-1/2" />
             )}
           </CardTitle>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white">
-                <HelpCircle className="h-5 w-5" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-zinc-900 text-white border-zinc-800">
-              <DialogHeader>
-                <DialogTitle>How to use Vine Boomer</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 text-sm text-zinc-400">
-                <p>1. Set the minimum and maximum time intervals</p>
-                <p>2. Choose your preferred time units for each interval</p>
-                <p>3. Click Start to begin random vine boom sounds</p>
-                <p>4. The sound will play randomly between your set intervals</p>
-                <p>5. Click Stop to pause the sounds</p>
-                <p className="text-yellow-500">Tip: Hover over the tray icon for a preview sound!</p>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <div className="flex gap-2">
+            <StatsDialog />
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white">
+                  <HelpCircle className="h-5 w-5" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-zinc-900 text-white border-zinc-800">
+                <DialogHeader>
+                  <DialogTitle>How to use Vine Boomer</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 text-sm text-zinc-400">
+                  <p>1. Set the minimum and maximum time intervals</p>
+                  <p>2. Choose your preferred time units for each interval</p>
+                  <p>3. Click Start to begin random vine boom sounds</p>
+                  <p>4. The sound will play randomly between your set intervals</p>
+                  <p>5. Click Stop to pause the sounds</p>
+                  <p className="text-yellow-500">Tip: Hover over the tray icon for a preview sound!</p>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4 pt-6 max-w-md mx-auto">
           <div className="grid grid-cols-2 gap-4">

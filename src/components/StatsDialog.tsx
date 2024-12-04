@@ -62,8 +62,8 @@ export function StatsDialog() {
     return (
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="outline" size="icon">
-            <BarChart3 className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white">
+            <BarChart3 className="h-5 w-5" />
           </Button>
         </DialogTrigger>
         <DialogContent className="bg-zinc-900 text-white border-zinc-800">
@@ -76,8 +76,8 @@ export function StatsDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
-          <BarChart3 className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white">
+          <BarChart3 className="h-5 w-5" />
         </Button>
       </DialogTrigger>
       <DialogContent className="bg-zinc-900 text-white border-zinc-800">

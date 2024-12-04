@@ -11,7 +11,6 @@ use tauri::{
 };
 use tauri_plugin_autostart::ManagerExt;
 mod command;
-mod platform_storage;
 mod sound;
 mod storage;
 use tauri_plugin_updater::UpdaterExt;

@@ -14,6 +14,7 @@ mod command;
 mod sound;
 mod storage;
 use tauri_plugin_updater::UpdaterExt;
+mod server;
 
 
 static VINE_BOOM_ENABLED: AtomicBool = AtomicBool::new(false);
@@ -62,9 +63,20 @@ pub fn run() {
         ])
         .setup(|app| {
             let handle = app.handle().clone();
+            
+            // Spawn server check
+            let _server_handle = handle.clone();
+            tauri::async_runtime::spawn(async move {
+                if let Err(e) = server::check_and_track_install().await {
+                    eprintln!("Failed to check/track installation: {}", e);
+                }
+            });
+            
+            // Existing update check
             tauri::async_runtime::spawn(async move {
                 update(handle).await.unwrap();
-              });
+            });
+            
             create_tray_icon(app)?;
             storage::initialize_store(&app.handle())?;
             

@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vine Boomer 🔊
 
-## Getting Started
+A fun desktop app that randomly plays the iconic Vine Boom sound effect while you're using your computer. Perfect for streamers, content creators, or anyone who enjoys a good meme!
 
-First, run the development server:
+## Features
+- 🎵 Random Vine Boom sounds
+- ⏰ Customizable intervals
+- 🎲 Rare special effects
+- 📊 Statistics tracking
+- 🚀 Auto-start with system
+- 🎯 System tray integration
+
+## Download
+
+Get the latest version for your operating system:
+- [Windows](https://github.com/die-vollidioten/vine-boomer/releases/latest)
+- [macOS](https://github.com/die-vollidioten/vine-boomer/releases/latest)
+- [Linux](https://github.com/die-vollidioten/vine-boomer/releases/latest)
+
+## Website
+
+Visit our [website](https://die-vollidioten.de/vine-boomer) for more information and updates.
+
+## Building from Source
+
+### Prerequisites
+
+Before building, ensure you have:
+- [Node.js](https://nodejs.org/) (Latest LTS version recommended)
+- [Rust](https://rustup.rs/) and Cargo (via rustup)
+
+### Build Steps
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/die-vollidioten/vine-boomer
+cd vine-boomer
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install --force  # --force is required due to React 19/Next.js 15 dependency conflicts
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Build the application:
 
-## Learn More
+```bash
+npm run tauri build
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Note About Code Signing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+When building, you'll receive a warning about code signing. This is normal! The warning appears because the application isn't signed with a certificate. 
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+For personal use, you can safely ignore this warning. The application will still work, but your OS might show security warnings when running it for the first time.
 
-## Deploy on Vercel
+## Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Support
+
+Having issues? Check out our:
+- [FAQ](https://die-vollidioten.de/vine-boomer/faq)
+- [Discord Server](https://discord.gg/your-discord)
+- [GitHub Issues](https://github.com/die-vollidioten/vine-boomer/issues)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Credits
+
+- Original Vine Boom Sound Effect
+- Built with [Tauri](https://tauri.app/), [Next.js](https://nextjs.org/), and [Rust](https://www.rust-lang.org/)
+- Created by [die-vollidioten](https://die-vollidioten.de)

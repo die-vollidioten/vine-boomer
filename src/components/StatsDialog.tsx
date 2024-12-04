@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { BarChart3 } from "lucide-react"
 import { invoke } from '@tauri-apps/api/core'
 import { useEffect, useState } from "react"
+import { LoadingSpinner } from './LoadingSpinner';
 
 interface BoomStats {
   total_booms: number;
@@ -14,19 +15,63 @@ interface BoomStats {
 
 export function StatsDialog() {
   const [stats, setStats] = useState<BoomStats | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchStats = async () => {
-    const stats = await invoke<BoomStats>('get_boom_stats');
-    setStats(stats);
+    try {
+      setError(null);
+      const newStats = await invoke<BoomStats>('get_boom_stats');
+      setStats(newStats);
+    } catch (err) {
+      setError('Failed to fetch stats');
+      console.error('Error fetching stats:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 5000);
-    return () => clearInterval(interval);
+    let mounted = true;
+    const controller = new AbortController();
+
+    const updateStats = async () => {
+      if (!mounted) return;
+      await fetchStats();
+    };
+
+    updateStats();
+    const interval = setInterval(updateStats, 5000);
+
+    return () => {
+      mounted = false;
+      controller.abort();
+      clearInterval(interval);
+    };
   }, []);
 
-  if (!stats) return null;
+  if (isLoading) {
+    return <div>Loading stats...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!stats) {
+    return (
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="icon">
+            <BarChart3 className="h-4 w-4" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="bg-zinc-900 text-white border-zinc-800">
+          <LoadingSpinner />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog>

@@ -112,11 +112,16 @@ export default function VineBoomer() {
     const minInSeconds = minTime * TIME_MULTIPLIERS[minTimeUnit]
     const maxInSeconds = maxTime * TIME_MULTIPLIERS[maxTimeUnit]
     
+    if (minInSeconds > maxInSeconds) {
+      toast.error("Minimum time cannot be greater than maximum time")
+      return
+    }
+    
     try {
       setIsUpdating(true)
       await invoke('set_interval', { 
         min: minInSeconds, 
-        max: Math.max(minInSeconds, maxInSeconds)
+        max: maxInSeconds
       })
       toast.dismiss()
       toast.success("Interval updated successfully!")
